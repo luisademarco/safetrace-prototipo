@@ -322,9 +322,15 @@
 
   function drawRoute(){
     if(!map) return;
+    map.invalidateSize();
     if(routeLine) map.removeLayer(routeLine);
     routeLine = L.polyline(routeCoords, { color:'#9AB2E2', weight:4, opacity:0.95 }).addTo(map);
     map.fitBounds(routeLine.getBounds(), { padding:[70,190] });
+    // remedir de novo logo depois, caso a barra do navegador mobile mude o tamanho da tela
+    setTimeout(function(){
+      map.invalidateSize();
+      map.fitBounds(routeLine.getBounds(), { padding:[70,190] });
+    }, 300);
   }
 
   function applyMode(mode){
@@ -377,6 +383,11 @@
       drawRoute();
       mapReady = true;
       clearTimeout(watchdog);
+
+      window.addEventListener('resize', function(){
+        map.invalidateSize();
+        if(routeLine) map.fitBounds(routeLine.getBounds(), { padding:[70,190] });
+      });
 
       document.querySelectorAll('.mode').forEach(function(el){
         el.addEventListener('click', function(){
