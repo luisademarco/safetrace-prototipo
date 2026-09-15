@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>SafeTrace — Perfil</title>
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#141416;
+    --surface-2:#1a1b1e;
+    --line:#232427;
+    --ink:#FCFCFC;
+    --ink-dim:#8c8d92;
+    --ink-faint:#5b5d63;
+    --accent:#9AB2E2;
+    --safe:#6FB98F;
+    --warn:#D9B45C;
+    --danger:#D06868;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    min-height:100%;
+    background:#1c1d20;
+    display:flex; align-items:flex-start; justify-content:center;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:24px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .phone{
+    position:relative;
+    width:375px; height:812px;
+    background:var(--bg);
+    border-radius:52px;
+    overflow:hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.55), 0 0 0 10px #0a0a0a, 0 0 0 11px #2a2a2a;
+  }
+  .notch{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:110px; height:28px; background:#000; border-radius:16px; z-index:50;
+  }
+  .screen{ position:relative; width:100%; height:100%; }
+
+  .content{
+    height:100%;
+    padding:88px 22px 150px 22px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .title{ font-size:25px; font-weight:700; color:var(--ink); }
+
+  /* Header do perfil */
+  .profile-head{
+    display:flex; align-items:center; gap:14px;
+    margin-top:22px;
+  }
+  .avatar-big{
+    width:64px; height:64px; border-radius:50%;
+    background:#9AB2E2;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:700; color:#0c0d10;
+    flex-shrink:0;
+  }
+  .profile-name{ font-size:18px; font-weight:700; color:var(--ink); }
+  .profile-sub{ font-size:12.5px; color:var(--ink-faint); margin-top:3px; line-height:1.4; }
+
+  .band-status{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:8px;
+    color:var(--safe); font-size:11.5px; font-weight:500;
+  }
+
+  /* Cards de informação */
+  .section-label{
+    font-size:11.5px; color:var(--ink-faint); font-weight:600;
+    margin:26px 0 10px 0;
+  }
+
+  .info-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
+  }
+  .info-row{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px;
+  }
+  .info-row + .info-row{ border-top:1px solid var(--line); }
+  .info-row .icon{
+    width:32px; height:32px; border-radius:9px;
+    background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .info-row .txt{ flex:1; min-width:0; }
+  .info-row .lbl{ font-size:11px; color:var(--ink-faint); }
+  .info-row .val{ font-size:13.5px; color:var(--ink); margin-top:2px; font-weight:500; }
+
+  /* Contatos de emergência */
+  .contact-row{
+    display:flex; align-items:center; gap:12px;
+    padding:13px 16px;
+  }
+  .contact-row + .contact-row{ border-top:1px solid var(--line); }
+  .contact-avatar{
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:#0c0d10;
+    flex-shrink:0;
+  }
+  .contact-info{ flex:1; min-width:0; }
+  .contact-info .name{ font-size:13.5px; font-weight:600; color:var(--ink); }
+  .contact-info .rel{ font-size:11.5px; color:var(--ink-faint); margin-top:1px; }
+  .contact-remove{ color:var(--ink-faint); }
+
+  .add-contact{
+    display:flex; align-items:center; gap:10px;
+    padding:14px 16px;
+    color:var(--accent);
+    font-size:13px; font-weight:600;
+  }
+
+  /* Ações */
+  .action-row{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px;
+    color:var(--ink);
+    font-size:13.5px;
+  }
+  .action-row + .action-row{ border-top:1px solid var(--line); }
+  .action-row.danger{ color:var(--danger); }
+  .action-row .chev{ margin-left:auto; color:var(--ink-faint); }
+
+  /* Floating nav */
+  .nav{
+    position:absolute;
+    bottom:28px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center;
+    padding:14px 20px;
+    background:rgba(20,20,22,0.92);
+    backdrop-filter:blur(10px);
+    border:1px solid var(--line);
+    border-radius:32px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.5);
+    z-index:40;
+  }
+  .nav-item{ display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--ink-faint); margin:0 9px; }
+  .nav-item.active{ color:var(--accent); }
+  .nav-item span{ font-size:10px; font-weight:500; }
+
+  .home-indicator{
+    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+    width:134px; height:5px; border-radius:3px; background:#3a3b3f;
+    z-index:6;
+  }
+</style>
+</head>
+<body>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="content">
+
+        <div class="title">Perfil</div>
+
+        <div class="profile-head">
+          <div class="avatar-big">A</div>
+          <div>
+            <div class="profile-name">Aluno</div>
+            <div class="profile-sub">Engenharia de Software · 3º período</div>
+            <div class="band-status">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6FB98F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="7" y="2" width="10" height="20" rx="4"/>
+                <line x1="10" y1="7" x2="14" y2="7"/>
+              </svg>
+              Pulseira conectada
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">DADOS PESSOAIS</div>
+        <div class="info-card">
+          <div class="info-row">
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AB2E2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7 L12 13 L21 7"/>
+              </svg>
+            </div>
+            <div class="txt">
+              <div class="lbl">E-mail</div>
+              <div class="val">aluno@uvv.br</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AB2E2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6.6 10.8 C8 13.6 10.4 16 13.2 17.4 L15.4 15.2 C15.7 14.9 16.1 14.8 16.5 15 C17.7 15.4 19 15.6 20.3 15.6 C20.9 15.6 21.3 16 21.3 16.6 V20 C21.3 20.6 20.9 21 20.3 21 C11 21 3.5 13.5 3.5 4.2 C3.5 3.6 3.9 3.2 4.5 3.2 H7.9 C8.5 3.2 8.9 3.6 8.9 4.2 C8.9 5.5 9.1 6.8 9.5 8 C9.6 8.4 9.5 8.8 9.3 9.1 Z"/>
+              </svg>
+            </div>
+            <div class="txt">
+              <div class="lbl">Telefone</div>
+              <div class="val">(27) 99999-1234</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AB2E2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10 L12 4 L2 10 L12 16 Z"/><path d="M6 12.5 V17 C6 18.7 8.7 20 12 20 C15.3 20 18 18.7 18 17 V12.5"/>
+              </svg>
+            </div>
+            <div class="txt">
+              <div class="lbl">Curso</div>
+              <div class="val">Engenharia de Software</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AB2E2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
+              </svg>
+            </div>
+            <div class="txt">
+              <div class="lbl">Período</div>
+              <div class="val">3º período</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">CONTATOS DE EMERGÊNCIA</div>
+        <div class="info-card">
+          <div class="contact-row">
+            <div class="contact-avatar" style="background:#9AB2E2;">M</div>
+            <div class="contact-info">
+              <div class="name">Mãe</div>
+              <div class="rel">(27) 98888-4321</div>
+            </div>
+            <svg class="contact-remove" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="1.4" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <div class="contact-row">
+            <div class="contact-avatar" style="background:#D9B45C;">A</div>
+            <div class="contact-info">
+              <div class="name">Ana</div>
+              <div class="rel">(27) 97777-8765</div>
+            </div>
+            <svg class="contact-remove" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="1.4" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <div class="add-contact">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Adicionar contato
+          </div>
+        </div>
+
+        <div class="section-label">CONFIGURAÇÕES</div>
+        <div class="info-card">
+          <div class="action-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="7" y="2" width="10" height="20" rx="4"/><line x1="10" y1="7" x2="14" y2="7"/>
+            </svg>
+            Gerenciar pulseira
+            <svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+          </div>
+          <div class="action-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/>
+            </svg>
+            Privacidade e dados
+            <svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+          </div>
+          <div class="action-row danger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21 H5 C3.9 21 3 20.1 3 19 V5 C3 3.9 3.9 3 5 3 H9"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sair da conta
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nav">
+        <div class="nav-item" onclick="window.location.href='tela-home.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11 L12 4 L21 11"/>
+            <path d="M5 10 V20 H19 V10"/>
+          </svg>
+          <span>Início</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='tela-connect.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8.5" cy="10" r="3.6"/>
+            <circle cx="16" cy="13" r="3.6"/>
+            <path d="M4 20 C4 16.7 6.2 14.6 8.5 14.6 C9.7 14.6 10.8 15.1 11.6 16"/>
+            <path d="M11.4 20 C11.4 16.9 13.4 15 16 15 C18.6 15 20.6 16.9 20.6 20"/>
+          </svg>
+          <span>Connect</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='tela-emergencia.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="6" fill="#D06868"/>
+          </svg>
+          <span>Emergência</span>
+        </div>
+        <div class="nav-item active" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21 C4 16.5 7.5 14 12 14 C16.5 14 20 16.5 20 21"/>
+          </svg>
+          <span>Perfil</span>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>SafeTrace — Rota</title>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"></noscript>
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#141416;
+    --surface-2:#1a1b1e;
+    --line:#232427;
+    --ink:#FCFCFC;
+    --ink-dim:#8c8d92;
+    --ink-faint:#5b5d63;
+    --accent:#9AB2E2;
+    --safe:#6FB98F;
+    --warn:#D9B45C;
+    --danger:#D06868;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    min-height:100%;
+    background:#1c1d20;
+    display:flex; align-items:flex-start; justify-content:center;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:24px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .phone{
+    position:relative;
+    width:375px; height:812px;
+    background:var(--bg);
+    border-radius:52px;
+    overflow:hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.55), 0 0 0 10px #0a0a0a, 0 0 0 11px #2a2a2a;
+  }
+  .notch{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:110px; height:28px; background:#000; border-radius:16px; z-index:50;
+  }
+  .screen{ position:relative; width:100%; height:100%; display:flex; flex-direction:column; }
+
+  #map{ position:relative; z-index:1; flex:1; min-height:0; width:100%; background:linear-gradient(135deg, #14171d, #1b1e24); touch-action:pan-x pan-y; }
+  #map .leaflet-tile-pane{
+    filter: invert(90%) hue-rotate(180deg) brightness(0.92) contrast(1.05) saturate(0.9);
+  }
+  .map-fallback{
+    position:absolute; inset:0; z-index:5;
+    display:none; align-items:center; justify-content:center;
+    flex-direction:column; gap:8px;
+    color:var(--ink-faint); font-size:12px; text-align:center;
+    padding:0 40px;
+  }
+  .map-fallback.show{ display:flex; }
+
+  /* Top bar */
+  .topbar{
+    position:absolute; top:58px; left:20px; right:20px;
+    z-index:40;
+    display:flex; align-items:center; gap:14px;
+  }
+  .back-btn{
+    width:38px; height:38px; flex-shrink:0;
+    border-radius:50%;
+    background:rgba(20,20,22,0.9);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .topbar .title{ font-size:16px; font-weight:700; color:var(--ink); }
+
+  /* Bottom sheet */
+  .sheet{
+    position:relative;
+    flex-shrink:0;
+    z-index:40;
+    background:var(--surface);
+    border-top-left-radius:26px;
+    border-top-right-radius:26px;
+    border-top:1px solid var(--line);
+    padding:12px 22px 30px 22px;
+    box-shadow:0 -20px 40px rgba(0,0,0,0.45);
+  }
+  .handle{ width:36px; height:4px; border-radius:3px; background:#33343a; margin:0 auto 14px auto; }
+
+  .modes{
+    display:flex; background:var(--surface-2); border-radius:14px; padding:4px;
+    border:1px solid var(--line); margin-bottom:16px;
+  }
+  .mode{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:9px 0; border-radius:11px; font-size:12px; font-weight:600;
+    color:var(--ink-faint); cursor:pointer;
+  }
+  .mode.active{ background:var(--accent); color:#0c0d10; }
+  .mode svg{ flex-shrink:0; }
+
+  .summary{ display:flex; align-items:flex-start; gap:10px; }
+  .summary .flag{
+    width:26px; height:26px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:8px; background:rgba(154,178,226,0.12); margin-top:2px;
+  }
+  .summary .headline{ font-size:16px; font-weight:700; color:var(--ink); line-height:1.35; }
+  .summary .headline b{ color:var(--accent); }
+  .summary .arrival{ font-size:12px; color:var(--ink-faint); margin-top:3px; }
+
+  .divider{ height:1px; background:var(--line); margin:14px 0; }
+
+  .distance-row{ display:flex; align-items:center; justify-content:space-between; }
+  .distance-row .dist{ font-size:13px; color:var(--ink-dim); }
+
+  .segments{ display:flex; align-items:center; gap:10px; margin-top:2px; }
+  .seg{
+    display:flex; align-items:center; gap:6px;
+    background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:7px 10px; font-size:12.5px; font-weight:600; color:var(--ink);
+  }
+  .seg svg{ flex-shrink:0; }
+  .seg-arrow{ color:var(--ink-faint); font-size:13px; }
+
+  .instruction{
+    display:flex; align-items:center; gap:10px; margin-top:14px;
+    padding:12px 14px; background:var(--surface-2); border-radius:14px; border:1px solid var(--line);
+  }
+  .instruction svg{ flex-shrink:0; }
+  .instruction .txt{ font-size:12.5px; color:var(--ink-dim); line-height:1.4; }
+
+  .safety-note{ display:flex; align-items:center; gap:8px; margin-top:14px; font-size:12px; color:var(--safe); }
+
+  .actions{ display:flex; gap:10px; margin-top:18px; }
+  .btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:7px;
+    padding:14px; border-radius:14px; font-size:14px; font-weight:700;
+    font-family:inherit; border:none;
+  }
+  .btn-primary{ background:var(--accent); color:#0c0d10; }
+  .btn-secondary{ background:var(--surface-2); color:var(--ink); border:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div id="map">
+        <div class="map-fallback" id="mapFallback">
+          <span>Não foi possível carregar o mapa agora.</span>
+          <span>Verifique sua conexão e tente novamente.</span>
+        </div>
+      </div>
+
+      <div class="topbar">
+        <div class="back-btn" onclick="window.location.href='tela-home.html'" style="cursor:pointer;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FCFCFC" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </div>
+        <div class="title" id="topTitle">Rota de carro</div>
+      </div>
+
+      <div class="sheet">
+        <div class="handle"></div>
+
+        <div class="modes">
+          <div class="mode active" data-mode="car">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12 L5 6 H19 L21 12 V18 H3 Z"/><circle cx="7.5" cy="18" r="1.6"/><circle cx="16.5" cy="18" r="1.6"/>
+            </svg>
+            Carro
+          </div>
+          <div class="mode" data-mode="bike">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M5.5 17.5 L10 8 H14 M10 8 L14 14 H18.5 M14 8 L12 14"/>
+            </svg>
+            Bicicleta
+          </div>
+          <div class="mode" data-mode="bus">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="13" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><circle cx="8" cy="20" r="1.5"/><circle cx="16" cy="20" r="1.5"/>
+            </svg>
+            Ônibus
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="flag">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9AB2E2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="22" x2="4" y2="3"/><path d="M4 4 H18 L15 8 L18 12 H4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="headline" id="headline">Carro · <b>—</b> até Jardim Camburi</div>
+            <div class="arrival" id="arrival">—</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="carBikeInfo">
+          <div class="distance-row">
+            <span class="dist" id="statDist">— km</span>
+          </div>
+          <div class="instruction">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AB2E2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 5 L16 12 L9 19"/>
+            </svg>
+            <div class="txt" id="turnText">—</div>
+          </div>
+        </div>
+
+        <div id="busInfo" style="display:none;">
+          <div class="segments">
+            <div class="seg">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="5" r="2"/><path d="M12 7 V13 M12 13 L8 20 M12 13 L16 20 M8 11 H16"/>
+              </svg>
+              <span id="walkTime">11 min</span>
+            </div>
+            <div class="seg-arrow">→</div>
+            <div class="seg">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="13" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/>
+              </svg>
+              <span id="busLine">Linha 508</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="safety-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6FB98F" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/>
+            <polyline points="9 12 11 14 15.5 9"/>
+          </svg>
+          <span id="safetyText">Rota evita 2 zonas de risco no caminho</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>
+            Iniciar
+          </button>
+          <button class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/>
+            </svg>
+            Compartilhar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var mapReady = false;
+  function showFallback(){ if(!mapReady) document.getElementById('mapFallback').classList.add('show'); }
+  var watchdog = setTimeout(showFallback, 6000);
+
+  var origin = [-20.3541156, -40.2992142];   // UVV
+  var dest   = [-20.2592187, -40.2654531];   // Jardim Camburi
+
+  // rota real, salva (via Terceira Ponte + orla de Vitória até Jardim Camburi) — waypoints reais, sem depender de API externa
+  var routeCoords = [
+    origin,                          // UVV
+    [-20.3365,-40.2921],
+    [-20.3190324,-40.2850903],       // Terceira Ponte
+    [-20.3090272,-40.2877821],       // Curva da Jurema
+    [-20.2996261,-40.2922686],       // Praia do Canto
+    [-20.2900000,-40.2922686],
+    [-20.2751185,-40.2922686],       // Mata da Praia
+    [-20.2742124,-40.2813720],       // Av. Dante Michelini
+    [-20.2670000,-40.2735000],
+    dest                              // Jardim Camburi
+  ];
+
+  var routeData = {
+    car:  { time:'24 min', dist:'14 km', instruction:'Siga pela Terceira Ponte e continue pela orla até Jardim Camburi' },
+    bike: { time:'47 min', dist:'14 km', instruction:'Vire à direita na Rua José Marques de Vasconcelos' },
+    bus:  { time:'50 min', walk:'11 min', line:'Linha 508' }
+  };
+
+  var modeNames = { car:'Rota de carro', bike:'Rota de bicicleta', bus:'Rota de ônibus' };
+  var modeLabels = { car:'Carro', bike:'Bicicleta', bus:'Ônibus' };
+
+  function durationToSeconds(txt){
+    var m = txt.match(/(\d+)/);
+    return m ? parseInt(m[1],10) * 60 : 0;
+  }
+  function fmtArrival(sec){
+    var d = new Date(Date.now() + sec*1000);
+    var hh = String(d.getHours()).padStart(2,'0');
+    var mm = String(d.getMinutes()).padStart(2,'0');
+    return 'Chegada às ' + hh + ':' + mm;
+  }
+
+  var map, routeLine;
+
+  function drawRoute(){
+    if(!map) return;
+    if(routeLine) map.removeLayer(routeLine);
+    routeLine = L.polyline(routeCoords, { color:'#9AB2E2', weight:4, opacity:0.95 }).addTo(map);
+    map.fitBounds(routeLine.getBounds(), { padding:[70,190] });
+  }
+
+  function applyMode(mode){
+    var d = routeData[mode];
+    document.getElementById('topTitle').textContent = modeNames[mode];
+    document.getElementById('headline').innerHTML =
+      modeLabels[mode] + ' · <b>' + d.time + '</b> até Jardim Camburi';
+    document.getElementById('arrival').textContent = fmtArrival(durationToSeconds(d.time));
+
+    var isBus = mode === 'bus';
+    document.getElementById('carBikeInfo').style.display = isBus ? 'none' : 'block';
+    document.getElementById('busInfo').style.display = isBus ? 'block' : 'none';
+
+    if(!isBus){
+      document.getElementById('statDist').textContent = d.dist;
+      document.getElementById('turnText').textContent = d.instruction;
+    } else {
+      document.getElementById('walkTime').textContent = d.walk;
+      document.getElementById('busLine').textContent = d.line;
+    }
+
+    document.getElementById('safetyText').textContent =
+      mode === 'bike' ? 'Atenção: rota passa perto de 1 zona de risco' : 'Rota evita 2 zonas de risco no caminho';
+  }
+
+  function initMap(){
+    try{
+      map = L.map('map', {
+        zoomControl:false, attributionControl:false,
+        touchZoom:false, zoomAnimation:false, markerZoomAnimation:false,
+        fadeAnimation:false, doubleClickZoom:false, boxZoom:false
+      }).setView(origin, 12);
+
+      var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 });
+      tiles.on('load', function(){ mapReady = true; clearTimeout(watchdog); });
+      tiles.addTo(map);
+
+      L.circleMarker(origin, { radius:6, color:'#0c0d10', weight:2, fillColor:'#9AB2E2', fillOpacity:1 }).addTo(map);
+      L.marker(dest, {
+        icon: L.divIcon({
+          className:'',
+          html:'<div style="width:16px;height:16px;background:#FCFCFC;border-radius:50% 50% 50% 0;transform:rotate(45deg);border:2px solid #12141a;"></div>',
+          iconSize:[16,16]
+        })
+      }).addTo(map);
+
+      L.circle([-20.323,-40.290], { radius:900, color:'#D06868', weight:0, fillColor:'#D06868', fillOpacity:0.18 }).addTo(map);
+      L.circle([-20.286,-40.278], { radius:700, color:'#D9B45C', weight:0, fillColor:'#D9B45C', fillOpacity:0.18 }).addTo(map);
+
+      drawRoute();
+      mapReady = true;
+      clearTimeout(watchdog);
+
+      document.querySelectorAll('.mode').forEach(function(el){
+        el.addEventListener('click', function(){
+          document.querySelectorAll('.mode').forEach(function(m){ m.classList.remove('active'); });
+          el.classList.add('active');
+          applyMode(el.dataset.mode);
+        });
+      });
+
+      applyMode('car');
+    }catch(e){
+      showFallback();
+    }
+  }
+
+  var script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+  script.onload = initMap;
+  script.onerror = showFallback;
+  document.body.appendChild(script);
+</script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>SafeTrace — Emergência</title>
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#141416;
+    --surface-2:#1a1b1e;
+    --line:#232427;
+    --ink:#FCFCFC;
+    --ink-dim:#8c8d92;
+    --ink-faint:#5b5d63;
+    --accent:#9AB2E2;
+    --safe:#6FB98F;
+    --warn:#D9B45C;
+    --danger:#D06868;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    min-height:100%;
+    background:#1c1d20;
+    display:flex; align-items:flex-start; justify-content:center;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:24px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .phone{
+    position:relative;
+    width:375px; height:812px;
+    background:var(--bg);
+    border-radius:52px;
+    overflow:hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.55), 0 0 0 10px #0a0a0a, 0 0 0 11px #2a2a2a;
+  }
+  .notch{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:110px; height:28px; background:#000; border-radius:16px; z-index:50;
+  }
+  .screen{ position:relative; width:100%; height:100%; }
+
+  .content{
+    height:100%;
+    padding:88px 22px 150px 22px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column; align-items:center;
+  }
+
+  .title{ font-size:25px; font-weight:700; color:var(--ink); align-self:flex-start; }
+  .subtitle{ font-size:13px; color:var(--ink-faint); margin-top:6px; align-self:flex-start; line-height:1.5; }
+
+  /* Hold ring hero */
+  .hold-wrap{
+    margin-top:38px;
+    position:relative;
+    width:190px; height:190px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pulse-ring{
+    position:absolute; inset:0;
+    border-radius:50%;
+    border:1.5px solid rgba(208,104,104,0.35);
+    animation: pulseOut 2.6s ease-out infinite;
+  }
+  .pulse-ring.delay{ animation-delay:1.3s; }
+  @keyframes pulseOut{
+    0%{ transform:scale(0.72); opacity:0.7; }
+    100%{ transform:scale(1.05); opacity:0; }
+  }
+  .hold-btn{
+    position:relative;
+    width:150px; height:150px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #3a2426, #150e0f 72%);
+    border:1px solid rgba(208,104,104,0.4);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:
+      0 0 40px 6px rgba(208,104,104,0.18),
+      inset 0 2px 2px rgba(255,255,255,0.08),
+      inset 0 -10px 16px rgba(0,0,0,0.5);
+  }
+  .hold-btn .label{
+    position:absolute; bottom:34px;
+    font-size:10.5px; color:var(--ink-faint);
+    text-align:center; width:100px;
+  }
+
+  .hint{
+    margin-top:22px;
+    font-size:12.5px; color:var(--ink-faint);
+    text-align:center; line-height:1.5;
+    max-width:260px;
+  }
+
+  /* Biometric card */
+  .bio-card{
+    width:100%;
+    margin-top:30px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:16px;
+    display:flex; align-items:center; gap:14px;
+  }
+  .bio-icon{
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(111,185,143,0.12);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .bio-info{ flex:1; min-width:0; }
+  .bio-info .row1{ display:flex; align-items:baseline; gap:6px; }
+  .bio-info .bpm{ font-size:19px; font-weight:700; color:var(--ink); }
+  .bio-info .bpm-label{ font-size:11.5px; color:var(--ink-faint); }
+  .bio-info .status{ font-size:12px; color:var(--safe); margin-top:2px; }
+
+  /* Contacts row */
+  .contacts-card{
+    width:100%;
+    margin-top:12px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:16px;
+  }
+  .contacts-card .lbl{ font-size:11.5px; color:var(--ink-faint); margin-bottom:10px; }
+  .contacts-row{ display:flex; align-items:center; }
+  .contact-chip{
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:#0c0d10;
+    border:2px solid var(--surface);
+    margin-left:-8px;
+  }
+  .contact-chip:first-child{ margin-left:0; }
+  .contact-chip.police{
+    background:var(--surface-2); color:var(--danger);
+    border:2px solid var(--surface);
+  }
+  .contacts-text{ font-size:12px; color:var(--ink-dim); margin-left:10px; }
+
+  /* Floating nav */
+  .nav{
+    position:absolute;
+    bottom:28px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center;
+    padding:14px 20px;
+    background:rgba(20,20,22,0.92);
+    backdrop-filter:blur(10px);
+    border:1px solid var(--line);
+    border-radius:32px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.5);
+    z-index:40;
+  }
+  .nav-item{ display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--ink-faint); margin:0 9px; }
+  .nav-item.active{ color:var(--accent); }
+  .nav-item span{ font-size:10px; font-weight:500; }
+
+  .home-indicator{
+    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+    width:134px; height:5px; border-radius:3px; background:#3a3b3f;
+    z-index:6;
+  }
+</style>
+</head>
+<body>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="content">
+
+        <div class="title">Emergência</div>
+        <div class="subtitle">Mantenha pressionado para acionar a polícia e seus contatos de confiança.</div>
+
+        <div class="hold-wrap">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring delay"></div>
+          <div class="hold-btn">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#D06868" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/>
+              <line x1="12" y1="8" x2="12" y2="13"/>
+              <circle cx="12" cy="16.3" r="0.6" fill="#D06868"/>
+            </svg>
+            <div class="label">Segure por 3s</div>
+          </div>
+        </div>
+
+        <div class="hint">Um toque acidental não aciona nada — é preciso segurar. Depois de acionado, você tem 15s para cancelar.</div>
+
+        <div class="bio-card">
+          <div class="bio-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6FB98F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12 H7 L9.5 6 L14 18 L16.5 12 H21"/>
+            </svg>
+          </div>
+          <div class="bio-info">
+            <div class="row1">
+              <span class="bpm">72</span>
+              <span class="bpm-label">bpm agora</span>
+            </div>
+            <div class="status">Pulseira conectada · monitorando</div>
+          </div>
+        </div>
+
+        <div class="contacts-card">
+          <div class="lbl">Serão avisados se você acionar</div>
+          <div style="display:flex; align-items:center;">
+            <div class="contacts-row">
+              <div class="contact-chip" style="background:#9AB2E2;">M</div>
+              <div class="contact-chip" style="background:#D9B45C;">A</div>
+              <div class="contact-chip police">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="contacts-text">Mãe, Ana e Polícia</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nav">
+        <div class="nav-item" onclick="window.location.href='tela-home.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11 L12 4 L21 11"/>
+            <path d="M5 10 V20 H19 V10"/>
+          </svg>
+          <span>Início</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='tela-connect.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8.5" cy="10" r="3.6"/>
+            <circle cx="16" cy="13" r="3.6"/>
+            <path d="M4 20 C4 16.7 6.2 14.6 8.5 14.6 C9.7 14.6 10.8 15.1 11.6 16"/>
+            <path d="M11.4 20 C11.4 16.9 13.4 15 16 15 C18.6 15 20.6 16.9 20.6 20"/>
+          </svg>
+          <span>Connect</span>
+        </div>
+        <div class="nav-item active" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="6" fill="#D06868"/>
+          </svg>
+          <span>Emergência</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='tela-perfil.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21 C4 16.5 7.5 14 12 14 C16.5 14 20 16.5 20 21"/>
+          </svg>
+          <span>Perfil</span>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+
+</body>
+</html>

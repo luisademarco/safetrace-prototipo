@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>SafeTrace — Home</title>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"></noscript>
+<style>
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:#2a2b2f; border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#3a3b3f; }
+  *{ scrollbar-width:thin; scrollbar-color:#2a2b2f transparent; }
+
+
+  :root{
+    --bg:#000000;
+    --surface:#141416;
+    --surface-2:#1a1b1e;
+    --line:#232427;
+    --ink:#FCFCFC;
+    --ink-dim:#8c8d92;
+    --ink-faint:#5b5d63;
+    --accent:#9AB2E2;
+    --safe:#6FB98F;
+    --warn:#D9B45C;
+    --danger:#D06868;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    min-height:100%;
+    background:#1c1d20;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:18px 0 10px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .phone{
+    position:relative;
+    width:375px; height:812px;
+    background:var(--bg);
+    border-radius:52px;
+    overflow:hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.55), 0 0 0 10px #0a0a0a, 0 0 0 11px #2a2a2a;
+  }
+  .notch{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:110px; height:28px; background:#000; border-radius:16px; z-index:5;
+  }
+  .screen{ position:relative; width:100%; height:100%; }
+
+  .content{
+    height:100%;
+    padding:88px 22px 130px 22px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .header-row{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:10px;
+  }
+
+  .greeting{
+    font-size:25px; font-weight:700; color:var(--ink); letter-spacing:-0.01em;
+  }
+  .greeting .name{ font-weight:400; color:var(--ink-dim); }
+
+  .band-status{
+    display:flex; align-items:center; gap:6px;
+    color:var(--safe); font-size:11px; font-weight:500;
+    flex-shrink:0;
+    padding-bottom:4px;
+  }
+  .band-status svg{ margin-right:2px; }
+
+  /* Search */
+  .search{
+    margin-top:18px;
+    display:flex; align-items:center; gap:10px;
+    padding:15px 16px;
+    background:var(--surface);
+    border-radius:16px;
+    border:1px solid var(--line);
+  }
+  .search svg{ flex-shrink:0; margin-right:8px; }
+  .search .val{ all:unset; flex:1; font-size:14.5px; color:var(--ink); font-family:inherit; }
+  .search .val::placeholder{ color:var(--ink-faint); }
+
+  /* Zone + map card */
+  .zone{
+    margin-top:14px;
+    padding:18px;
+    border:1px solid var(--line);
+    border-radius:18px;
+  }
+  .zone .label{ font-size:12px; color:var(--ink-faint); margin-bottom:8px; }
+  .zone-row{ display:flex; align-items:center; }
+  .zone-dot{
+    width:10px; height:10px; margin-right:12px;
+    border-radius:50%; background:var(--safe);
+    box-shadow:0 0 6px 1px rgba(111,185,143,0.5);
+    flex-shrink:0;
+  }
+  .zone-row .value{ font-size:18px; font-weight:600; color:var(--safe); }
+  .zone .place{ font-size:12.5px; color:var(--ink-dim); margin-top:5px; margin-bottom:14px; }
+
+  .map-wrap{
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    position:relative;
+    cursor:pointer;
+  }
+  .map-expand{
+    position:absolute; top:10px; right:10px;
+    width:26px; height:26px;
+    background:rgba(12,13,16,0.55);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    z-index:600;
+    pointer-events:none;
+  }
+  #map{
+    position:relative; z-index:1;
+    width:100%; height:190px;
+    background:linear-gradient(135deg, #14171d, #1b1e24);
+    touch-action:pan-x pan-y;
+  }
+  .map-fallback{
+    display:none;
+    width:100%; height:190px;
+    align-items:center; justify-content:center;
+    flex-direction:column; gap:6px;
+    color:var(--ink-faint); font-size:11.5px; text-align:center;
+    padding:0 20px;
+  }
+  .map-fallback.show{ display:flex; }
+  
+  .map-attrib{
+    font-size:8.5px; color:var(--ink-faint); text-align:right;
+    padding:3px 6px 0 0;
+  }
+  .map-legend{
+    display:flex; gap:16px;
+    margin-top:12px;
+  }
+  .map-legend .item{
+    display:flex; align-items:center; gap:6px;
+    font-size:11px; color:var(--ink-faint);
+  }
+  .map-legend .sw{ width:8px; height:8px; border-radius:50%; margin-right:5px; }
+
+  /* Emergency - creative hold button */
+  .emergency{
+    margin-top:16px;
+    padding:18px;
+    border-radius:18px;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .hold-ring{
+    position:relative;
+    width:58px; height:58px;
+    flex-shrink:0;
+  }
+  .hold-ring svg{ position:absolute; top:0; left:0; }
+  .hold-ring .bg-ring{ stroke:#26201f; }
+  .hold-ring .progress-ring{
+    stroke:var(--danger);
+    stroke-linecap:round;
+    transform:rotate(-90deg);
+    transform-origin:29px 29px;
+  }
+  .hold-ring .core{
+    position:absolute; top:8px; left:8px;
+    width:42px; height:42px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #3a2426, #1a1213 70%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .emergency-text .title{ font-size:14.5px; font-weight:600; color:var(--ink); }
+  .emergency-text .sub{ font-size:12px; color:var(--ink-faint); margin-top:3px; line-height:1.4; }
+
+  /* Floating nav */
+  .nav{
+    position:absolute;
+    bottom:28px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center;
+    padding:14px 20px;
+    background:rgba(20,20,22,0.92);
+    backdrop-filter:blur(10px);
+    border:1px solid var(--line);
+    border-radius:32px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.5);
+  }
+  .nav-item{ display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--ink-faint); margin:0 9px; }
+  .nav-item.active{ color:var(--accent); }
+  .nav-item span{ font-size:10px; font-weight:500; }
+
+  .home-indicator{
+    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+    width:134px; height:5px; border-radius:3px; background:#3a3b3f;
+    z-index:6;
+  }
+</style>
+</head>
+<body>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="content">
+
+        <div class="header-row">
+          <div class="greeting">Olá, <span class="name">Aluno</span></div>
+          <div class="band-status">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6FB98F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="7" y="2" width="10" height="20" rx="4"/>
+              <line x1="10" y1="7" x2="14" y2="7"/>
+            </svg>
+            <span>Pulseira conectada</span>
+          </div>
+        </div>
+
+        <div class="search" onclick="window.location.href='tela-rota.html'" style="cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5b5d63" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="val" type="text" value="Casa · Jardim Camburi, Vitória" />
+        </div>
+
+        <div class="zone">
+          <div class="label">Sua zona agora</div>
+          <div class="zone-row">
+            <div class="value">Segura</div>
+          </div>
+          <div class="place">Campus Universitário — Bloco C</div>
+
+          <div class="map-wrap" onclick="window.location.href='tela-rota.html'">
+            <div id="map"></div>
+            <div class="map-fallback" id="mapFallback">
+              <span>🗺️ Zona: Segura</span>
+              <span>Não foi possível carregar o mapa agora — verifique sua conexão.</span>
+            </div>
+            <div class="map-expand">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FCFCFC" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"/>
+                <polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/>
+                <line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </div>
+          </div>
+          <div class="map-attrib">Mapa: © OpenStreetMap</div>
+
+          <div class="map-legend">
+            <div class="item"><span class="sw" style="background:#6FB98F"></span>Segura</div>
+            <div class="item"><span class="sw" style="background:#D9B45C"></span>Atenção</div>
+            <div class="item"><span class="sw" style="background:#D06868"></span>Risco</div>
+          </div>
+        </div>
+
+        <div class="emergency" onclick="window.location.href='tela-emergencia.html'" style="cursor:pointer;">
+          <div class="hold-ring">
+            <svg width="58" height="58" viewBox="0 0 58 58">
+              <circle class="bg-ring" cx="29" cy="29" r="25" fill="none" stroke-width="4"/>
+              <circle class="progress-ring" cx="29" cy="29" r="25" fill="none" stroke-width="4"
+                stroke-dasharray="157" stroke-dashoffset="110"/>
+            </svg>
+            <div class="core">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D06868" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/>
+                <line x1="12" y1="8" x2="12" y2="13"/>
+                <circle cx="12" cy="16.3" r="0.6" fill="#D06868"/>
+              </svg>
+            </div>
+          </div>
+          <div class="emergency-text">
+            <div class="title">Emergência</div>
+            <div class="sub">Mantenha o dedo no anel<br/>por 3 segundos para acionar</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nav">
+        <div class="nav-item active" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11 L12 4 L21 11"/>
+            <path d="M5 10 V20 H19 V10"/>
+          </svg>
+          <span>Início</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='tela-connect.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8.5" cy="10" r="3.6"/>
+            <circle cx="16" cy="13" r="3.6"/>
+            <path d="M4 20 C4 16.7 6.2 14.6 8.5 14.6 C9.7 14.6 10.8 15.1 11.6 16"/>
+            <path d="M11.4 20 C11.4 16.9 13.4 15 16 15 C18.6 15 20.6 16.9 20.6 20"/>
+          </svg>
+          <span>Connect</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='tela-emergencia.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="6" fill="#D06868">
+              <animate attributeName="opacity" values="1;0.45;1" dur="1.8s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+          <span>Emergência</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='tela-perfil.html'" style="cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21 C4 16.5 7.5 14 12 14 C16.5 14 20 16.5 20 21"/>
+          </svg>
+          <span>Perfil</span>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+
+<script>
+  var mapReady = false;
+
+  function showFallback(){
+    if(!mapReady){
+      document.getElementById('mapFallback').classList.add('show');
+    }
+  }
+  var watchdog = setTimeout(showFallback, 6000);
+
+  function initMap(){
+    try{
+      var uvv = [-20.3541156, -40.2992142];
+
+      var map = L.map('map', {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false,
+        zoomAnimation: false,
+        markerZoomAnimation: false,
+        fadeAnimation: false,
+        boxZoom: false
+      }).setView(uvv, 16);
+
+      var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+      tiles.on('load', function(){ mapReady = true; clearTimeout(watchdog); });
+      tiles.addTo(map);
+
+      L.circle(uvv, { radius:480, color:'#D06868', weight:0, fillColor:'#D06868', fillOpacity:0.22 }).addTo(map);
+      L.circle([-20.3560,-40.2975], { radius:260, color:'#D9B45C', weight:0, fillColor:'#D9B45C', fillOpacity:0.22 }).addTo(map);
+      L.circle(uvv, { radius:190, color:'#6FB98F', weight:2, opacity:0.9, fillColor:'#6FB98F', fillOpacity:0.32 }).addTo(map);
+
+      var uvvPin = L.icon({
+        iconUrl: 'data:image/png;base64,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',
+        iconSize: [36, 44],
+        iconAnchor: [18, 44],
+        popupAnchor: [0, -40]
+      });
+      L.marker(uvv, { icon: uvvPin }).addTo(map);
+
+      mapReady = true;
+      clearTimeout(watchdog);
+    }catch(e){
+      showFallback();
+    }
+  }
+
+  var script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+  script.onload = initMap;
+  script.onerror = showFallback;
+  document.body.appendChild(script);
+</script>
+</body>
+</html>

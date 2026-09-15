@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>SafeTrace — Protótipo</title>
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#141416;
+    --line:#232427;
+    --ink:#FCFCFC;
+    --ink-dim:#8c8d92;
+    --ink-faint:#5b5d63;
+    --accent:#9AB2E2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    min-height:100%;
+    background:#000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display:flex; justify-content:center;
+    padding:48px 20px;
+  }
+  .wrap{ width:100%; max-width:420px; }
+  .logo{ font-size:26px; font-weight:700; color:var(--ink); letter-spacing:-0.01em; }
+  .logo .trace{ font-weight:400; color:var(--accent); }
+  .sub{ font-size:13px; color:var(--ink-faint); margin-top:6px; margin-bottom:28px; }
+
+  a.card{
+    display:flex; align-items:center; gap:14px;
+    text-decoration:none;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:10px;
+  }
+  a.card .num{
+    width:32px; height:32px; border-radius:9px;
+    background:#1a1b1e;
+    color:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:700;
+    flex-shrink:0;
+  }
+  a.card .txt{ flex:1; }
+  a.card .name{ font-size:14.5px; font-weight:700; color:var(--ink); }
+  a.card .desc{ font-size:12px; color:var(--ink-faint); margin-top:2px; }
+  a.card .arrow{ color:var(--ink-faint); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">Safe<span class="trace">Trace</span></div>
+    <div class="sub">Protótipo das telas — clique pra abrir cada uma</div>
+
+    <a class="card" href="tela-standby.html">
+      <div class="num">01</div>
+      <div class="txt"><div class="name">Standby</div><div class="desc">Tela de espera, toque para entrar</div></div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="card" href="tela-home.html">
+      <div class="num">02</div>
+      <div class="txt"><div class="name">Home</div><div class="desc">Zona atual, busca e emergência rápida</div></div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="card" href="tela-rota.html">
+      <div class="num">03</div>
+      <div class="txt"><div class="name">Rota</div><div class="desc">Carro, bicicleta ou ônibus até o destino</div></div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="card" href="tela-connect.html">
+      <div class="num">04</div>
+      <div class="txt"><div class="name">Connect</div><div class="desc">Ir acompanhado com outros alunos</div></div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="card" href="tela-emergencia.html">
+      <div class="num">05</div>
+      <div class="txt"><div class="name">Emergência</div><div class="desc">Botão de pânico e status da pulseira</div></div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="card" href="tela-perfil.html">
+      <div class="num">06</div>
+      <div class="txt"><div class="name">Perfil</div><div class="desc">Dados pessoais e contatos de confiança</div></div>
+      <div class="arrow">→</div>
+    </a>
+  </div>
+</body>
+</html>
