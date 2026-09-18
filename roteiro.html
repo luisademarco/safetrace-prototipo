@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SafeTrace — Roteiro Inova Week</title>
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#141416;
+    --surface-2:#1a1b1e;
+    --line:#232427;
+    --ink:#FCFCFC;
+    --ink-dim:#8c8d92;
+    --ink-faint:#5b5d63;
+    --accent:#9AB2E2;
+    --warn:#D9B45C;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height:100vh;
+    padding:28px 18px 60px 18px;
+  }
+  .wrap{ max-width:640px; margin:0 auto; }
+
+  .logo{ font-size:20px; font-weight:700; text-align:center; }
+  .logo span{ font-weight:400; color:var(--accent); }
+  .event{ text-align:center; font-size:13px; color:var(--ink-faint); margin-top:6px; margin-bottom:24px; }
+
+  .tabs{
+    display:flex; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:14px; padding:4px; margin-bottom:26px;
+    position:sticky; top:14px; z-index:10;
+    backdrop-filter:blur(8px);
+  }
+  .tab{
+    flex:1; text-align:center; padding:12px 4px; border-radius:11px;
+    font-size:13px; font-weight:700; color:var(--ink-faint); cursor:pointer;
+  }
+  .tab.active{ background:var(--accent); color:#0c0d10; }
+
+  .period{ display:none; }
+  .period.active{ display:block; }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:16px;
+  }
+  .card-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .card-head .who{ font-size:16px; font-weight:700; }
+  .card-head .time{
+    font-size:11.5px; font-weight:600; color:var(--warn);
+    background:rgba(217,180,92,0.12);
+    padding:4px 10px; border-radius:8px; flex-shrink:0; margin-left:10px;
+  }
+  .card .role{ font-size:12.5px; color:var(--accent); margin-bottom:14px; font-weight:600; }
+  .card .speech{
+    font-size:16px; line-height:1.65; color:var(--ink);
+    white-space:pre-line;
+  }
+
+  .qa-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px 20px;
+    margin-bottom:14px;
+  }
+  .qa-card .q{
+    font-size:15px; font-weight:700; color:var(--accent);
+    margin-bottom:10px; line-height:1.4;
+  }
+  .qa-card .a{
+    font-size:14.5px; line-height:1.6; color:var(--ink);
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">Safe<span>Trace</span></div>
+    <div class="event">Inova Week · 23 de setembro de 2026 — roteiro de apresentação</div>
+
+    <div class="tabs">
+      <div class="tab active" data-period="manha">Manhã</div>
+      <div class="tab" data-period="noite">Noite</div>
+      <div class="tab" data-period="perguntas">Perguntas</div>
+    </div>
+
+    <div class="period active" id="manha">
+      <div class="card">
+        <div class="card-head"><span class="who">Pessoa 1</span><span class="time">~50s</span></div>
+        <div class="role">Problema + proposta</div>
+        <div class="speech">"O SafeTrace é uma proposta de segurança urbana voltada principalmente para estudantes universitários durante seus deslocamentos fora do campus.
+A ideia é oferecer mais segurança em situações comuns do dia a dia, como sair da faculdade à noite, caminhar até um ponto de ônibus ou voltar para casa sozinho.
+Para isso, desenvolvemos uma solução que integra aplicativo e pulseira, reunindo recursos de prevenção, conexão entre alunos e acionamento de emergência."</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="who">Pessoa 2</span><span class="time">~1min</span></div>
+        <div class="role">Aplicativo</div>
+        <div class="speech">"No aplicativo, temos três funcionalidades principais.
+O Mapa de Risco permite visualizar regiões que exigem mais atenção. A Rota Segura ajuda o usuário a escolher um trajeto mais adequado, levando em consideração essas áreas.
+Já o Connect aproxima estudantes que estão saindo no mesmo horário e possuem caminhos semelhantes, permitindo que façam parte do percurso juntos.
+Além disso, o aplicativo possui uma área de emergência, onde o usuário consegue acionar rapidamente seus contatos de confiança e recursos de segurança em uma situação de risco."</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="who">Pessoa 3</span><span class="time">~1min</span></div>
+        <div class="role">SafeBand + fechamento</div>
+        <div class="speech">"Como complemento ao aplicativo, propomos a SafeBand, uma pulseira conectada ao sistema. Ela foi pensada para ser simples, discreta e acessível ao público universitário.
+Entre as funcionalidades propostas estão conectividade Bluetooth, monitoramento de batimentos e mecanismos de detecção de situações de risco.
+Em uma emergência, a pulseira também funciona como uma forma rápida de acionar o sistema sem depender diretamente do celular.
+O SafeTrace está alinhado à ODS 16, relacionada à paz, justiça e instituições eficazes, e busca usar a tecnologia como apoio para tornar os deslocamentos dos estudantes mais seguros."</div>
+      </div>
+    </div>
+
+    <div class="period" id="noite">
+      <div class="card">
+        <div class="card-head"><span class="who">Pessoa 1</span><span class="time">~1min30</span></div>
+        <div class="role">Problema + aplicativo</div>
+        <div class="speech">"O SafeTrace é uma proposta de segurança urbana voltada principalmente para estudantes universitários durante seus deslocamentos fora do campus.
+A ideia é oferecer mais segurança em situações comuns do dia a dia, como sair da faculdade à noite, caminhar até um ponto de ônibus ou voltar para casa sozinho.
+Para isso, desenvolvemos uma solução que integra aplicativo e pulseira.
+No aplicativo, temos três funcionalidades principais. O Mapa de Risco permite visualizar regiões que exigem mais atenção. A Rota Segura ajuda o usuário a escolher um trajeto mais adequado. E o Connect aproxima estudantes que estão saindo no mesmo horário e possuem caminhos semelhantes, permitindo que façam parte do percurso juntos.
+O aplicativo também possui uma área de emergência para acionar rapidamente contatos de confiança e recursos de segurança."</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="who">Pessoa 2</span><span class="time">~1min30</span></div>
+        <div class="role">SafeBand + fechamento</div>
+        <div class="speech">"Como complemento ao aplicativo, propomos a SafeBand, uma pulseira conectada ao sistema e pensada para ser simples, discreta e acessível ao público universitário.
+Entre as funcionalidades propostas estão conectividade Bluetooth, monitoramento de batimentos e mecanismos de detecção de situações de risco.
+Em uma emergência, a pulseira também oferece uma forma rápida de acionar o sistema sem depender diretamente do celular.
+Assim, o SafeTrace reúne prevenção, conexão entre estudantes e resposta a emergências em uma única proposta.
+O projeto também está alinhado à ODS 16, relacionada à paz, justiça e instituições eficazes, e busca utilizar a tecnologia como apoio para tornar os deslocamentos dos estudantes mais seguros."</div>
+      </div>
+    </div>
+
+    <div class="period" id="perguntas">
+
+      <div class="qa-card">
+        <div class="q">Como funciona a detecção automática de risco na pulseira?</div>
+        <div class="a">Ela combina três sinais ao mesmo tempo: batimento cardíaco elevado, uma parada brusca (ex: queda ou ser puxado) e a pessoa estar numa zona marcada como arriscada no mapa. Quando os três coincidem, o app pergunta se está tudo bem — se não houver resposta em 15 segundos, o alerta é disparado sozinho, sem precisar tocar em nada.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Isso não é só um Waze com botão de pânico?</div>
+        <div class="a">O mapa colaborativo é inspirado no Waze, sim, mas a diferença central é a combinação de três frentes: mapeamento de risco + monitoramento biométrico via pulseira + acionamento automático de emergência. Nenhuma ferramenta acessível hoje junta as três coisas — o Waze não aciona ajuda sozinho, e apps de pânico não leem sinais do corpo.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Como vocês garantem a privacidade dos dados de localização?</div>
+        <div class="a">Os dados seguem criptografia AES-256. No Connect, por exemplo, só mostramos o bairro de destino de quem está saindo, nunca o endereço exato — e o trajeto compartilhado some da lista assim que a pessoa chega em segurança.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Como evitam relatos falsos no mapa colaborativo?</div>
+        <div class="a">Isso está na evolução do projeto (v2.0): relato da comunidade com validação cruzada de múltiplos usuários antes de mudar o status de uma zona, além de dar peso maior a relatos recentes e de usuários frequentes na região.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">E se a pulseira disparar um alarme falso (falso positivo)?</div>
+        <div class="a">Por isso existe a janela de confirmação de 15 segundos antes de qualquer acionamento automático — a pessoa pode cancelar direto pelo app ou pela própria pulseira caso esteja tudo bem, evitando acionar a polícia ou os contatos sem necessidade.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Qual o estágio atual do projeto?</div>
+        <div class="a">Estamos na v1.0, o MVP de feira: protótipo navegável de todas as telas do app, mapa de risco simulado com dados fictícios da região da UVV, e o conceito da SafeBand. A v2.0 prevê biométrico real, rota segura dinâmica e relato da comunidade; a v3.0, integração com dados oficiais de segurança pública, modo offline e câmeras públicas.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Como funciona o acionamento da polícia? Vocês têm parceria oficial?</div>
+        <div class="a">Hoje, na fase de protótipo, o acionamento envia a localização GPS simultaneamente para contatos de confiança cadastrados e para a polícia. Uma parceria formal com a segurança pública é um passo natural da evolução do projeto, junto com a v3.0, quando também integramos dados oficiais de criminalidade.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Quem é o público-alvo do SafeTrace?</div>
+        <div class="a">Prioritariamente estudantes universitários e do ensino médio, mas o modelo também serve pra trabalhadores que usam transporte público, entregadores, motoristas de aplicativo e profissionais de turno noturno — qualquer pessoa em deslocamento urbano sozinha.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Como o Connect garante que ir com um desconhecido é seguro?</div>
+        <div class="a">O Connect aproxima pessoas que já fazem parte da mesma comunidade universitária (usuários verificados do app da instituição), com caminhos e horários semelhantes — não é aberto ao público geral. Ainda assim, é uma escolha opcional do usuário: ele decide se quer se juntar a alguém ou seguir sozinho com o app monitorando.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Qual a relação do projeto com o ODS 16?</div>
+        <div class="a">O ODS 16 trata de Paz, Justiça e Instituições Eficazes. O SafeTrace contribui reduzindo o tempo de resposta policial em assaltos, aumentando a sensação de segurança da população, gerando dados estruturados de criminalidade que podem apoiar políticas públicas, e dando proteção especial a grupos vulneráveis nos deslocamentos urbanos.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Qual o modelo de negócio? Como o projeto se sustenta financeiramente?</div>
+        <div class="a">Nesta fase de MVP o foco é validar a solução, não a monetização. Como caminho natural, pensamos em parcerias institucionais (universidades e prefeituras adquirindo o serviço para seus alunos/comunidade) e um modelo freemium: o mapa e o app são gratuitos, e a pulseira SafeBand é o produto físico vendido à parte.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Quanto custaria a pulseira pro aluno?</div>
+        <div class="a">Ainda não temos um preço fechado nesta fase de protótipo — a ideia é usar componentes de BLE acessíveis (parecidos com pulseiras fitness simples) pra manter o custo baixo, já que o público-alvo principal é estudante.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Qual a autonomia de bateria da pulseira?</div>
+        <div class="a">Como o MVP atual é o protótipo das telas (v1.0), a parte física ainda não foi implementada — a autonomia real será definida na v2.0, quando entra o biométrico de verdade. A meta de design é days de uso (padrão de pulseiras fitness com BLE), não horas.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Funciona sem internet ou sem sinal?</div>
+        <div class="a">Hoje, não — o MVP depende de conexão para o mapa e o envio de alertas. Modo offline está previsto explicitamente na v3.0 do projeto, junto com integração a dados oficiais e câmeras públicas.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Por que não simplesmente ligar pro 190?</div>
+        <div class="a">Porque na maioria dos assaltos a vítima fica paralisada e não consegue discar ou falar — foi exatamente esse o caso que motivou o projeto. O SafeTrace resolve isso ao permitir acionamento automático via pulseira, sem precisar tocar no celular ou dizer uma palavra.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Já existe algo parecido no mercado? Qual o diferencial?</div>
+        <div class="a">Existem apps de mapa de risco (tipo comunidades no Waze) e apps de botão de pânico isolados, mas nenhuma ferramenta acessível hoje une as três frentes: mapa colaborativo + monitoramento biométrico + acionamento automático sem depender do celular. Essa integração é o nosso diferencial central.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">Como pretendem expandir pra outras universidades ou cidades?</div>
+        <div class="a">A arquitetura do mapa de risco é colaborativa e não depende de uma universidade específica — expandir significa basicamente abrir a área geográfica pra novos usuários relatarem e consultarem zonas. O maior desafio é a base inicial de dados e possíveis parcerias institucionais em cada nova região.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="q">De quem é a responsabilidade se o app falhar numa emergência real?</div>
+        <div class="a">É um ponto real de atenção pra qualquer produto de segurança. Por isso, o SafeTrace é pensado como uma camada extra de proteção e resposta rápida — nunca um substituto dos canais oficiais (190, contatos de confiança), que continuam ativos em paralelo.</div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.period').forEach(function(p){ p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.period).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
